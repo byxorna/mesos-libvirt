@@ -1,6 +1,9 @@
 {
 	"ImportPath": "github.com/byxorna/mesos-libvirt",
 	"GoVersion": "go1.5.1",
+	"Packages": [
+		"./..."
+	],
 	"Deps": [
 		{
 			"ImportPath": "github.com/gogo/protobuf/proto",
@@ -18,6 +21,11 @@
 		},
 		{
 			"ImportPath": "github.com/mesos/mesos-go/detector",
+			"Comment": "v0.0.2-27-g657252e",
+			"Rev": "657252ec6fc27975cd86da9f708acd6f4bb1f9ac"
+		},
+		{
+			"ImportPath": "github.com/mesos/mesos-go/executor",
 			"Comment": "v0.0.2-27-g657252e",
 			"Rev": "657252ec6fc27975cd86da9f708acd6f4bb1f9ac"
 		},
