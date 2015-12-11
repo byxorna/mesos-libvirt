@@ -18,4 +18,11 @@ slave:
   links:
   - master:master
   - zk:zk
+  - framework:framework
   command: mesos-slave --master=zk://zk:2181/test
+framework:
+  build: .
+  ports:
+  - 8080:8080
+  links:
+  - master:master
