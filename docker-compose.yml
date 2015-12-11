@@ -1,0 +1,21 @@
+
+zk:
+  image: garland/zookeeper
+  ports:
+  - 2181
+master:
+  image: mesosphere/mesos-master:0.25.0-0.2.70.ubuntu1404
+  command: mesos-master --registry=in_memory --zk=zk://zk:2181/test
+  links:
+  - zk:zk
+  ports:
+  - 5050:5050
+slave:
+  image: mesosphere/mesos-slave:0.25.0-0.2.70.ubuntu1404
+  # make mesos containerizer work :P
+  volumes:
+  - /sys/fs/cgroup/freezer:/sys/fs/cgroup/freezer:rw
+  links:
+  - master:master
+  - zk:zk
+  command: mesos-slave --master=zk://zk:2181/test
