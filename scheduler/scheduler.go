@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"strconv"
 	"strings"
-	"time"
 
 	"github.com/gogo/protobuf/proto"
 
@@ -20,9 +19,8 @@ var (
 )
 
 type Scheduler struct {
-	executor         *mesos.ExecutorInfo
-	lastLaunchedTask time.Time
-	tasksLaunched    int
+	executor      *mesos.ExecutorInfo
+	tasksLaunched int
 }
 
 func NewLibvirtScheduler(exec *mesos.ExecutorInfo) (Scheduler, error) {
@@ -66,22 +64,15 @@ func (sched *Scheduler) Error(driver sched.SchedulerDriver, err string) {
 func (sched *Scheduler) ResourceOffers(driver sched.SchedulerDriver, offers []*mesos.Offer) {
 	log.Infof("Scheduler received resource offers:\n%s\n", strings.Join(offersStrings(offers), "\n"))
 
-	// launch a task every 60 seconds
-	if sched.lastLaunchedTask.After(time.Now().Add(-60 * time.Second)) {
-		log.Infoln("Task launch ineligible")
-		return
-	}
-
 	for _, offer := range offers {
 		// fuck it. dont even pull out the resources for this offer. just try to accept with some number of resources
 		// and if we ask for more than the offer has, mesos should fail, right?
 
 		var tasks []*mesos.TaskInfo
-		if sched.lastLaunchedTask.After(time.Now().Add(-60 * time.Second)) {
+		if sched.tasksLaunched < 1 {
 
-			log.Infof("Task %d\n", sched.tasksLaunched)
+			log.Infof("Creating Task %d\n", sched.tasksLaunched)
 			sched.tasksLaunched++
-			sched.lastLaunchedTask = time.Now()
 
 			taskId := &mesos.TaskID{
 				Value: proto.String(strconv.Itoa(sched.tasksLaunched)),
@@ -99,11 +90,14 @@ func (sched *Scheduler) ResourceOffers(driver sched.SchedulerDriver, offers []*m
 				Data: []byte("This is a payload string"),
 			}
 			log.Infof("Prepared task: %s with offer %s for launch\n", task.GetName(), offer.Id.GetValue())
+			log.Infof("%+v\n", task)
 
 			tasks = append(tasks, task)
 		}
-		log.Infoln("Launching ", len(tasks), " tasks for offer ", offer.Id.GetValue())
-		driver.LaunchTasks([]*mesos.OfferID{offer.Id}, tasks, &mesos.Filters{RefuseSeconds: proto.Float64(1)})
+		if len(tasks) > 0 {
+			log.Infoln("Launching", len(tasks), "tasks for offer", offer.Id.GetValue())
+			driver.LaunchTasks([]*mesos.OfferID{offer.Id}, tasks, &mesos.Filters{RefuseSeconds: proto.Float64(1)})
+		}
 	}
 
 }

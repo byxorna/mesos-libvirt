@@ -45,6 +45,8 @@ func (exec *Executor) LaunchTask(driver exec.ExecutorDriver, taskInfo *mesos.Tas
 	fmt.Println("Total tasks launched ", exec.tasksLaunched)
 
 	fmt.Println("I would be doing work here.... instead ill sleep for 30s")
+	fmt.Println("This is the data i got from the payload:")
+	fmt.Printf("%x\n", taskInfo.Data)
 	time.Sleep(30 * time.Second)
 	/*
 		// Download image
