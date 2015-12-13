@@ -83,20 +83,24 @@ func main() {
 }
 
 func prepareExecutorInfo(uri string, cmd string) *mesos.ExecutorInfo {
-	executorUris := []*mesos.CommandInfo_URI{
-		{
-			Value:      &uri,
-			Executable: proto.Bool(true),
-		},
-	}
 
 	return &mesos.ExecutorInfo{
 		ExecutorId: util.NewExecutorID("default"),
 		Name:       proto.String("Libvirt Executor (" + version + ")"),
 		Source:     proto.String("go_test"),
+		// these are minimum resources for the executor
+		Resources: []*mesos.Resource{
+			util.NewScalarResource("cpus", 0.1),
+			util.NewScalarResource("mem", 128),
+		},
 		Command: &mesos.CommandInfo{
 			Value: proto.String(cmd),
-			Uris:  executorUris,
+			Uris: []*mesos.CommandInfo_URI{
+				{
+					Value:      &uri,
+					Executable: proto.Bool(true),
+				},
+			},
 		},
 	}
 }
