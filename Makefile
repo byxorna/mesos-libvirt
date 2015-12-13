@@ -10,7 +10,6 @@ all: test build
 
 setup:
 	@echo "-> install build deps"
-	@go get -u "golang.org/x/tools/cmd/vet"
 	@go get -u "github.com/tools/godep"
 
 vet:
